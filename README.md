@@ -1,2 +1,2 @@
 # Wallet-Watch
-A web application built using Spring MVC to track and visualize personal finances
+A web application built using Java, Spring MVC, MySQL and Google Charts to easily track and visualize your personal finances.
