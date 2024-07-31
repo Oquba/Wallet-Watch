@@ -1,0 +1,19 @@
+/* Coloring for 'Deposit' */
+#amount {
+    border: solid lightgreen;
+    color: lightgreen;
+}
+
+#isDeposit {
+    color: lightgreen;
+}
+
+/* Coloring for 'Spend' */
+.spending {
+    border: solid lightcoral !important;
+    color: lightcoral !important;
+}
+
+.spending #isDeposit {
+    color: lightcoral !important;
+}

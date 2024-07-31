@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title id="title">Transaction Edit</title>
+    <link th:href="@{/css/transactions.css}" rel="stylesheet">
+    <script th:src="@{/js/scripts.js}"></script>
+</head>
+<body class="d-flex flex-column h-100">
+<main class="flex-shrink-0">
+    <section layout:fragment="body" class="py-5">
+        <div class="container">
+            <form role="form" method="post"
+                  th:action="@{/transactions/{transactionId}/edit(transactionId=${transaction.id})}"
+                  th:object="${transaction}">
+                <div class="form-row">
+                    <input type="hidden" th:field="*{id}">
+                    <div class="form-group col-md-6">
+                        <label for="amount">Amount</label>
+                        <div class="input-group">
+                            <input
+                                    type="text"
+                                    onchange="fn()"
+                                    class="spending form-control ml-2"
+                                    id="amount"
+                                    name="amount"
+                                    th:field="*{amount}"
+                                    placeholder="$$$$">
+                            <div class="input-group-append ml-2">
+                                <select
+                                        onchange="fn()"
+                                        id="isDeposit"
+                                        class="spending form-control"
+                                        style="margin-left: 8px;"
+                                        name="type"
+                                        th:field="*{type}">
+
+                                    <option th:value="Spend" th:text="Spend" th:selected style="color: lightcoral;"></option>
+                                    <option th:value="Deposit" th:text="Deposit" style="color: lightgreen;"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <p th:if="${#fields.hasErrors('amount')}" class="text-danger" th:errors="*{amount}"></p>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="category">Category</label>
+                        <select
+                                id="category"
+                                class="form-control"
+                                name="category"
+                                th:object="${categories}"
+                        >
+                            <option
+                                    th:each="category : ${categories}"
+                                    th:value="${category.id}"
+                                    th:text="${category.name}"></option>
+
+                        </select>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="date">Date</label>
+                        <input
+                                type="date"
+                                onchange="formatDate()"
+                                class="form-control"
+                                id="date"
+                                name="date">
+                        <input
+                                type="hidden"
+                                class="form-control"
+                                value=""
+                                id="transactionDate"
+                                name="transactionDate"
+                                th:field="*{transactionDate}">
+                        <p th:if="${#fields.hasErrors('transactionDate')}" class="text-danger" th:errors="*{transactionDate}"></p>
+                    </div>
+                </div>
+                <br>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </section>
+</main>
+</body>
+</html>

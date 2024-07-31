@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Transaction</title>
+    <style>
+        .green {
+            background-color: #39E75F !important;
+        }
+        .red {
+            background-color: #FF4F4B !important;
+        }
+        table {
+            border-collapse: collapse;
+        }
+        thead {
+            background-color: gray;
+        }
+        th, td {
+            color:black;
+            text-align: center;
+            padding: 8px;
+            border: 1px solid;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body class="d-flex flex-column h-100">
+<main class="flex-shrink-0">
+    <section layout:fragment="body" class="py-5">
+        <div class="container px-5 my-5">
+            <div th:if="${param.success}" class="alert alert-success">
+                You are registered successfully!
+            </div>
+            <div class="text-center mb-5">
+                <!--
+                <h1 class="fw-bolder" th:if="${user != null}" th:text="${user.username}"></h1>
+                 CODE FOR DISPLAYING THE USERNAME ON THE TRANSACTIONS PAGE
+                 -->
+                <h1 class="fw-bolder">Transactions</h1>
+            </div>
+            <div class="row gx-5">
+                <div>
+                    <form th:action="@{/transactions/search}" class="form-inline my-2 my-lg-0 mb-3">
+                        <input name="query" class="form-control mr-sm-2 mb-5" type="search" placeholder="Search category" aria-label="Search">
+                    </form>
+                </div>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>$$$$</th>
+                        <th>Category</th>
+                        <th style="width: 50px">Edit</th>
+                        <th style="width: 50px">Delete</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:class="${transaction != null and transaction.type == 'Deposit' ? 'green position-relative' : 'red position-relative'}"
+                        th:each="transaction : ${transactions}">
+                        <td th:text="${#dates.format(transaction.transactionDate, 'MM/dd/yyyy')}"></td>
+                        <td th:text="${transaction.amount}"></td>
+                        <td th:text="${transaction.category.name}"></td>
+                        <td>
+                            <a th:href="@{/transactions/{transactionId}/edit(transactionId=${transaction.id})}">
+                                <i class="far fa-edit"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <a th:href="@{/transactions/{transactionId}/delete(transactionId=${transaction.id})}">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        // Load the Google Charts library
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(fetchData);
+
+        var transactions;
+        function fetchData() {
+
+            fetch('/api/transactions')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error');
+                    }
+                    return response.json()
+                })
+                .then(data => {
+                    console.log("DATA READ SUCCESSFULLY")
+                    transactions = data;
+                    updateTotalWealth(transactions);
+                    getRecentActivity(transactions);
+                    setView('3months');
+                });
+        }
+        function drawChart(transactions, view) {
+            var data = new google.visualization.DataTable();
+            data.addColumn('date', 'Date');
+            data.addColumn('number', 'Spending');
+            data.addColumn('number', 'Deposit');
+
+            let currentDate = new Date();
+            var startDate;
+
+            if (view === '3months') {
+                var threeMonthYear = currentDate.getFullYear();
+                var threeMonthMonth = currentDate.getMonth() - 3;
+                if (threeMonthMonth < 0 ) {
+                    threeMonthMonth += 12;
+                    threeMonthYear -= 1;
+                }
+                startDate = new Date(threeMonthYear, threeMonthMonth, 1);
+            }
+            else {
+                startDate = new Date(transactions[0].transactionDate.split("-")[0],
+                    transactions[0].transactionDate.split("-")[1] - 1, 1);
+            }
+
+            var monthlyData = {};
+
+            transactions.forEach(function(transaction) {
+                var dateParts = transaction.transactionDate.split("-");
+                let tranDate = new Date(dateParts[0], dateParts[1] - 1);
+
+                if (tranDate >= startDate) {
+                    let monthKey = `${tranDate.getFullYear()}-${tranDate.getMonth()}`;
+
+                    if (!monthlyData[monthKey]) {
+                        monthlyData[monthKey] = {spending: 0, deposit: 0};
+                    }
+
+                    if (transaction.type === "Deposit") {
+                        monthlyData[monthKey].deposit += transaction.amount;
+                    } else {
+                        monthlyData[monthKey].spending += transaction.amount;
+                    }
+                }
+            });
+
+            var chartData = [];
+
+            let current = new Date(startDate);
+            while (current <= currentDate) {
+                let monthKey = `${current.getFullYear()}-${current.getMonth()}`;
+                if (!monthlyData[monthKey]) {
+                    monthlyData[monthKey] = {spending: 0, deposit: 0};
+                }
+                let date = new Date(current.getFullYear(), current.getMonth());
+                chartData.push([
+                    date,
+                    monthlyData[monthKey].spending,
+                    monthlyData[monthKey].deposit
+                ]);
+                current.setMonth(current.getMonth() + 1);
+
+                if (current > currentDate) break; // Prevent infinite loop
+            }
+
+
+            chartData.sort((a, b) => a[0] - b[0]);
+
+            data.addRows(chartData);
+
+            var options = {
+                hAxis: {
+                    format: 'MMM yyyy',
+                    gridlines: {
+                        count: -1
+                    }
+                },
+                legend: { position: 'bottom' },
+                width: 1200,
+                height: 500,
+                colors: ['#a52714', '#097138'],
+                interpolateNulls: true // Connect the points with lines even if there are nulls
+            };
+            if (view === '3months') {
+                options.hAxis= {
+                    format: 'MMM yyyy',
+                        viewWindow: {
+                        min: new Date(threeMonthYear, threeMonthMonth, 1),
+                            max: new Date()
+                    },
+                    gridlines: {
+                        count: -1
+                    }
+                }
+            }
+
+            var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+            chart.draw(data, options);
+        }
+        function updateTotalWealth(transactions) {
+            console.log("RUNNING UPDATE WEALTH")
+            var totalWealth = 0;
+            transactions.forEach(function(transaction) {
+                if (transaction.type === "Deposit") {
+                    totalWealth += transaction.amount;
+                }
+                else {
+                    totalWealth -= transaction.amount;
+                }
+            });
+            document.getElementById("total-wealth").textContent = totalWealth.toFixed(2);
+        }
+        function getRecentActivity(transactions) {
+            var transactionsList = document.getElementById("transactions-list")
+            transactions.slice(-7).reverse().forEach(function(transaction) {
+                var listItem = document.createElement('li');
+                listItem.textContent = `${transaction.transactionDate}: $${transaction.amount}`
+                transaction.type === 'Deposit' ? listItem.className = 'green' : listItem.className = 'red';
+                transactionsList.appendChild(listItem);
+            });
+        }
+        function setView(view) {
+            if (view === '3months') {
+                document.getElementById("chart-title").innerHTML = `3 Months`;
+            }
+            else {
+                document.getElementById("chart-title").innerText = `All Time`;
+            }
+            drawChart(transactions, view);
+        }
+    </script>
+    <style>
+        .chart-title {
+            text-align: center;
+        }
+        .green {
+            color: #39E75F !important;
+            font-size: 17px;
+        }
+        .red {
+            color: #FF4F4B !important;
+            font-size: 17px;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column h-100">
+<main class="flex-shrink-0">
+    <section layout:fragment="body" class="py-5">
+        <div class="d-flex justify-content-around">
+            <div class="wealth-summary mr-auto p-2 bd-highlight">
+                <h2>Sum of total wealth</h2>
+                <h3 style="padding-left: 75px">$<span id="total-wealth">xxx</span></h3>
+            </div>
+            <div class="recent-transactions ml-auto p-2 bd-highlight">
+                <h2>Recent activity</h2>
+                <ul id="transactions-list">
+
+                </ul>
+            </div>
+        </div>
+        <br>
+        <div class="chart-container container" style="text-align: center">
+            <h2 id="chart-title"></h2>
+            <button onclick="setView('3months')" class="btn-black">3 Months</button>
+            <button onclick="setView('allTime')" class="btn-black">All Time</button>
+            <div id="chart_div"></div>
+        </div>
+        <!--
+        <div class="container px-5 my-5">
+            <div class="text-center mb-5">
+                <h1 class="fw-bolder">Dashboard</h1>
+            </div>
+        </div>
+        <div id="chart_div"></div>
+        -->
+    </section>
+</main>
+</body>
+</html>

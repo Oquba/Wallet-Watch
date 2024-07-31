@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <style>
+        body, html {
+            margin: 0;
+            height: 100%;
+        }
+        .hero-image {
+            background-image: url('/assets/home_skyline.jpg');
+            filter: brightness(75%);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+            height: 50vh;
+            display: flex;
+            justify-content: center;
+            text-align: center;
+        }
+        .hero-text {
+            position: relative;
+            padding: 20px;
+            border-radius: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.48);
+            color: black;
+        }
+        .btn-white {
+            color: white;
+            padding: 16px 60px;
+            text-align: center;
+            font-size: 1vw;
+            border-radius: 12px;
+            justify-content: center;
+            display: inline-block;
+        }
+        .btn-white:hover {
+            color: gray;
+        }
+        .description {
+            text-align: center;
+        }
+        .description p {
+            font-size: 25px;
+        }
+    </style>
+</head>
+
+<body class="d-flex flex-column h-100">
+<main class="flex-shrink-0">
+    <section layout:fragment="body" class="banner">
+        <div class="hero-image">
+            <div class="hero-text">
+                <h1 style="font-size:5vw">Wallet Watch</h1>
+                <br>
+                <br>
+                <p style="font-size:1.5vw">Track your finances with confidence</p>
+                <br>
+                <br>
+                <br>
+                <div class="btn-container">
+                    <a th:href="@{/login}" type="submit" class="btn btn-white">Login</a>
+                    <a th:href="@{/register}" type="submit" class="btn btn-white">Register</a>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="description">
+            <h1>Keep a record of your spending</h1>
+            <br>
+            <p class="description">Manually add, edit and delete your daily expenses.</p>
+            <br>
+            <h1>Visualize your financial habits</h1>
+            <p class="description">Get a clear picture of your financial health.</p>
+        </div>
+    </section>
+</main>
+</body>
+</html>

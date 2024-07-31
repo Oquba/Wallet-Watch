@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Transaction List</title>
+    <style>
+        .green {
+            color: green !important;
+        }
+        .red {
+            color: red !important;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column h-100">
+<main class="flex-shrink-0">
+    <section layout:fragment="body" class="py-5">
+        <div class="container px-5 my-5">
+            <div th:if="${param.success}" class="alert alert-success">
+                You are registered successfully!
+            </div>
+            <div class="text-center mb-5">
+                <h1 class="fw-bolder" th:if="${user != null}" th:text="${user.username}"></h1>
+                <p class="lead fw-normal text-muted mb-0">Test</p>
+            </div>
+            <div class="row gx-5">
+                <div>
+                    <form th:action="@{/transactions/search}" class="form-inline my-2 my-lg-0 mb-3">
+                        <input name="query" class="form-control mr-sm-2 mb-5" type="search" placeholder="Search category" aria-label="Search">
+                    </form>
+                </div>
+                <div th:each="transaction : ${transactions}" class="col-lg-6">
+                    <div th:class="${transaction != null and transaction.type == 'Deposit' ? 'green position-relative' : 'red position-relative'}">
+                        <p class="display-4 fw-bolder mb-4" th:text="${transaction.category.name}"></p>
+                        <p class="display-4 fw-bolder mb-4" th:text="${transaction.amount}"></p>
+                        <p class="display-4 fw-bolder mb-4" th:text="${#dates.format(transaction.transactionDate, 'MM/dd/yyyy')}"></p>
+                    </div>
+                    <div class="mb-5">
+                        <a class="btn btn-primary" th:href="@{/transactions/{transactionId}/edit(transactionId=${transaction.id})}">Edit</a>
+                        <a class="btn btn-primary" th:href="@{/transactions/{transactionId}/delete(transactionId=${transaction.id})}">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>
